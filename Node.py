@@ -6,14 +6,14 @@ class Node:
         self.inputLayer = inputLayer
         self.z = 0
         self.activationValue = activationValue
+        self.weights = []
 
-    def calculateActivationValue(self, weightvector):
+    def calculateActivationValue(self):
         z = 0.0
         index = 0
         for node in self.inputLayer:
-            print("wv[index]", weightvector[index])
-            print("node.aV", node.activationValue)
-            z += node.activationValue * weightvector[index]
+            print("wv[", index, "]", self.weights[index])
+            z += node.activationValue * self.weights[index]
             index += 1
         print("z", z)
         self.z = z
