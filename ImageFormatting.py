@@ -6,7 +6,7 @@ import matplotlib.pylab as plot
 def imageToValueArray(imagePath):
     img = Image.open(imagePath, 'r').convert("L")
     croppedImg = ImageOps.fit(img, (32,32))
-    croppedImg.show()
+    # croppedImg.show()
     dataArray = list(croppedImg.getdata())
     dataArrayFloats = []
     for n in dataArray:

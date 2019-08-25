@@ -12,10 +12,10 @@ class Node:
         z = 0.0
         index = 0
         for node in self.inputLayer:
-            print("wv[", index, "]", self.weights[index])
+            # print("w[", index, "]", self.weights[index])
             z += node.activationValue * self.weights[index]
             index += 1
-        print("z", z)
+        # print("z", z)
         self.z = z
         self.activationValue = 1.0/(1.0 + math.pow(math.e, -1.0 * z))
 

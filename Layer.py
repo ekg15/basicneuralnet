@@ -3,6 +3,7 @@ from functools import reduce
 from Node import *
 from random import *
 
+
 class Layer:
     def __init__(self, nodeList=[]):
         self.nodeList = nodeList
@@ -33,7 +34,7 @@ class Layer:
 
     def checkWeights(self):
         for n in self.nodeList:
-            print("weights:", n.weights)
+            print("weights:", n.weights, len(n.weights), end=' ')
 
     def inputFromImageArray(self, imageArray):
         index = 0
@@ -46,10 +47,8 @@ class Layer:
             n.calculateActivationValueFromInput(1)
 
     def activateNodes(self):
-        index = 0
         for n in self.nodeList:
             n.calculateActivationValue()
-            index += 1
 
     def calculateCost(self, expectedResults):
         index = 0
@@ -60,13 +59,16 @@ class Layer:
             index += 1
         return cost
 
+    def getHighestActivation(self):
+        return max(self.nodeList)
+
     def calculatePartialsInner(self, nextLayerWeightGradient, nextLayer, previousLayer):
         eL = []
         weightGradient = []
         # each node in this layer. We access the necessary weights by iterating over this and the next layer,
         # which will provide the matching coordinates in out weight matrix
         for i in range(0, len(self.nodeList)):
-            print("starting")
+            # print("starting")
             partialList = []
             # [l][i] is how each node l in the next layer is affected by node i in current layer
             costOverActivationPartial = 0.0
@@ -75,8 +77,8 @@ class Layer:
                 # for inner layer partial we need to sum effects of this partial on each of next layer's partials
                 costOverActivationPartial += nextLayer.costOverActivationPartials[l] * (sigmoidOfZNext * (1 - sigmoidOfZNext)) \
                     * nextLayer.nodeList[l].weights[i]
-                print(nextLayer.nodeList[l].weights[i], l, i)
-                print(nextLayer.costOverActivationPartials[l])
+                # print(nextLayer.nodeList[l].weights[i], l, i)
+                # print(nextLayer.costOverActivationPartials[l])
             # now iterating over the weights (between current[i] and prev[j]) in our matrix and calculating partials
             for j in range(0, len(previousLayer.nodeList)):
                 sigmoidOfZ = 1.0/(1 + math.pow(math.e, -1 * self.nodeList[i].z))
@@ -85,7 +87,6 @@ class Layer:
             # append partial derivative of the cost function relative to this node's activation
             eL.append(costOverActivationPartial)
             weightGradient.append(partialList)
-        print(weightGradient)
         self.costOverActivationPartials = eL
         return weightGradient
 
