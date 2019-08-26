@@ -1,12 +1,13 @@
 import math
 from Node import *
 from Layer import *
+from Network import *
 from ImageFormatting import *
 from random import *
 
 
 def main():
-    imageToValueArray('./wbgm.jpg')
+    # imageToValueArray('./wbgm.jpg')
     image = loadMNISTData('./train-images-idx3-ubyte', './train-labels-idx1-ubyte')
     seed(2)
     expectedResultsArray = [0, 0, 0, 0, 0, 1, 0, 0, 0, 0]
@@ -47,26 +48,35 @@ def main():
     wGI = layer2.calculatePartialsInner(wGI1, layer3, layer1)
 
     print("l4w")
-    layer4.checkWeights()
-    print(wGF)
+    # layer4.checkWeights()
+    # print(wGF)
     layer4.applyGradient(wGF)
-    layer4.checkWeights()
+    # layer4.checkWeights()
 
     print("l3w")
-    layer3.checkWeights()
-    print(wGI1)
+    # layer3.checkWeights()
+    # print(wGI1)
     layer3.applyGradient(wGI1)
-    layer3.checkWeights()
+    # layer3.checkWeights()
 
 
-    print("l2w")
+    # print("l2w")
     # layer2.checkWeights()
-    print(wGI)
+    # print(wGI)
     layer2.applyGradient(wGI)
     # layer2.checkWeights()
-    print(image)
+    # print(image)
 
-    print(layer4.findPartialDerivative(1, 1, 1))
+    # print(layer4.findPartialDerivative(1, 1, 1))
+
+    inputArray, valueArray = loadMNISTDataArray('./train-images-idx3-ubyte', './train-labels-idx1-ubyte')
+    network = Network()
+    network.addInputLayer(784)
+    network.addInnerLayer(32)
+    network.addInnerLayer(16)
+    network.addInnerLayer(10)
+    network.runOnTrainingSet(inputArray[0:10000], valueArray[0:10000], 10)
+    # showImage(inputArray[4999])
 
 
 

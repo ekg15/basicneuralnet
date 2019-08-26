@@ -39,7 +39,7 @@ class Layer:
     def inputFromImageArray(self, imageArray):
         index = 0
         for n in self.nodeList:
-            n.calculateActivationValueFromInput(imageArray[index])
+            n.calculateActivationValueFromInput(imageArray[index]/255)
             index += 1
 
     def dummyInputNodes(self):
@@ -60,7 +60,13 @@ class Layer:
         return cost
 
     def getHighestActivation(self):
-        return max(self.nodeList)
+        eAL = []
+        for n in self.nodeList:
+            eAL.append(n.activationValue)
+        for n in self.nodeList:
+            if max(eAL) == n.activationValue:
+                return self.nodeList.index(n)
+        return max(eAL)
 
     def calculatePartialsInner(self, nextLayerWeightGradient, nextLayer, previousLayer):
         eL = []

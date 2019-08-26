@@ -3,9 +3,10 @@ from mlxtend.data import loadlocal_mnist
 import numpy as np
 import matplotlib.pylab as plot
 
+
 def imageToValueArray(imagePath):
     img = Image.open(imagePath, 'r').convert("L")
-    croppedImg = ImageOps.fit(img, (32,32))
+    croppedImg = ImageOps.fit(img, (32, 32))
     # croppedImg.show()
     dataArray = list(croppedImg.getdata())
     dataArrayFloats = []
@@ -32,6 +33,35 @@ def loadMNISTData(imageFilePath, labelFilePath):
     for n in x[0]:
         floatArr.append(n/255.0)
     return floatArr
+
+def showImage(image):
+    eL = []
+    for n in range(0, 28):
+        pRL = []
+        for j in range(0, 28):
+            pRL.append(image[(n * 28) + j])
+        eL.append(pRL)
+    plot.imshow(eL, cmap=plot.cm.binary)
+    plot.show()
+
+def loadMNISTDataArray(imageFilePath, labelFilePath):
+    x, y = loadlocal_mnist(
+        images_path=imageFilePath,
+        labels_path=labelFilePath)
+    # eL = []
+    # for n in range(0, 28):
+    #     pRL = []
+    #     for j in range(0, 28):
+    #         pRL.append(x[0][(n * 28) + j])
+    #     eL.append(pRL)
+    # convertedValueArray = []
+    # for n in x:
+    #     floatArr = []
+    #     for j in x[n]:
+    #         floatArr.append(j/255.0)
+    #     convertedValueArray.append(floatArr)
+    # print(len(convertedValueArray))
+    return x, y
 
 
 # not used, worth a shot
