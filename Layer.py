@@ -71,6 +71,7 @@ class Layer:
 
 
     # going to need new Partial Derivative function to work with Convolutional layers
+    # or maybe not
 
 
     # partial derivatives of the cost with respect to an inner layer of weights

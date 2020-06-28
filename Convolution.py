@@ -15,11 +15,17 @@ def convolve():
     # perform convolution
     # output feature map
     layer1 = Layer()
+    layer2 = Layer()
+    layer3 = Layer()
     layer1.generateInputNodes(16)
+    layer2.generateInnerNodes(32, layer1)
+    layer3.generateInnerNodes(32, layer2)
+    layer1.dummyInputNodes()
+    layer2.createWeightMatrix(layer1)
+    layer3.createWeightMatrix(layer2)
     k1 = np.random.rand(5, 5)
     f1 = Filter(5, k1)
-    f1.applyGradient(layer1)
-    pass
+    f1.applyGradient(layer1, layer2, layer3)
 
 
 class ConvolutionLayer:
@@ -64,19 +70,22 @@ class Filter:
         # i = len image, n = len featmap
         pass
 
-    def applyGradient(self, nextLayer):
+    def applyGradient(self, inputLayer, nextLayer, layerLplus2):
         # calculate gradient for all n^2 weights in a kernel
-        # delta_L1 = nextLayer.calculatePartialsInner()
+        # gradient of next layer, dE/dx
+        # organized as: d_l1[0] for node 0
+        # organized as: d_l1[0][0] for weight b/t node 0
+        delta_L1 = nextLayer.calculatePartialsInner(None, inputLayer, layerLplus2)
+        delta_L1_maybe = nextLayer.costOverActivationPartials
+        print(delta_L1_maybe)
         with np.nditer(self.kernel, flags=['multi_index']) as itr:
             for i in itr:
-                pass
                 print(i, itr.multi_index)
-                # dE/dx * dx/dw
+                # grad = sum over i,j in featmap of dE/dx_ij * dx/dw
                 # dE/dx = grad of next layer (delta_L1)
                 # dx/dw = value input to w
                 # value input is given by coords of weight + coords of featmap
                 # so the weight at (1,3) for x_8,9 of featmap is 9,12 in the image
-        pass
 
 
 if __name__ == '__main__':
