@@ -1,3 +1,6 @@
+import numpy as np
+from Node import *
+from Layer import *
 # error = upsample(Wkl * error(l+1)) * f'(zkl)
 
 # per weight:
@@ -11,6 +14,11 @@ def convolve():
     # take in array of values (image)
     # perform convolution
     # output feature map
+    layer1 = Layer()
+    layer1.generateInputNodes(16)
+    k1 = np.random.rand(5, 5)
+    f1 = Filter(5, k1)
+    f1.applyGradient(layer1)
     pass
 
 
@@ -48,6 +56,7 @@ class Filter:
         if kernel is None:
             kernel = []
         self.kernel = kernel
+        self.currentFeatMap = []
         self.n = n
 
     def convolveToFeatMap(self, image):
@@ -57,4 +66,18 @@ class Filter:
 
     def applyGradient(self, nextLayer):
         # calculate gradient for all n^2 weights in a kernel
+        # delta_L1 = nextLayer.calculatePartialsInner()
+        with np.nditer(self.kernel, flags=['multi_index']) as itr:
+            for i in itr:
+                pass
+                print(i, itr.multi_index)
+                # dE/dx * dx/dw
+                # dE/dx = grad of next layer (delta_L1)
+                # dx/dw = value input to w
+                # value input is given by coords of weight + coords of featmap
+                # so the weight at (1,3) for x_8,9 of featmap is 9,12 in the image
         pass
+
+
+if __name__ == '__main__':
+    convolve()
