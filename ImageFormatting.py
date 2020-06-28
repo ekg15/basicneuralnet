@@ -34,6 +34,7 @@ def loadMNISTData(imageFilePath, labelFilePath):
         floatArr.append(n/255.0)
     return floatArr
 
+
 def showImage(image):
     eL = []
     for n in range(0, 28):
@@ -48,19 +49,6 @@ def loadMNISTDataArray(imageFilePath, labelFilePath):
     x, y = loadlocal_mnist(
         images_path=imageFilePath,
         labels_path=labelFilePath)
-    # eL = []
-    # for n in range(0, 28):
-    #     pRL = []
-    #     for j in range(0, 28):
-    #         pRL.append(x[0][(n * 28) + j])
-    #     eL.append(pRL)
-    # convertedValueArray = []
-    # for n in x:
-    #     floatArr = []
-    #     for j in x[n]:
-    #         floatArr.append(j/255.0)
-    #     convertedValueArray.append(floatArr)
-    # print(len(convertedValueArray))
     return x, y
 
 

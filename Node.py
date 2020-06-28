@@ -17,6 +17,7 @@ class Node:
             index += 1
         # print("z", z)
         self.z = z
+        # sigmoid hardcoded lol
         self.activationValue = 1.0/(1.0 + math.pow(math.e, -1.0 * z))
 
     def calculateActivationValueFromInput(self, inputValue):

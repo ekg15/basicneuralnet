@@ -38,6 +38,7 @@ class Layer:
 
     def inputFromImageArray(self, imageArray):
         index = 0
+        print(imageArray)
         for n in self.nodeList:
             n.calculateActivationValueFromInput(imageArray[index]/255)
             index += 1
@@ -68,6 +69,10 @@ class Layer:
                 return self.nodeList.index(n)
         return max(eAL)
 
+
+    # partial derivatives of the cost with respect to an inner layer of weights
+
+
     def calculatePartialsInner(self, nextLayerWeightGradient, nextLayer, previousLayer):
         eL = []
         weightGradient = []
@@ -95,6 +100,10 @@ class Layer:
             weightGradient.append(partialList)
         self.costOverActivationPartials = eL
         return weightGradient
+
+
+    # partial derivatives of the cost with respect to the last layer of weights
+
 
     def calculatePartialsLast(self, expectedResults, previousLayer):
         eL = []
