@@ -23,6 +23,27 @@ def loadMNISTData(imageFilePath, labelFilePath):
     print(len(x[0]))
     print(len(y))
     print((x[0]))
+    '''eL = []
+    for n in range(0, 28):
+        pRL = []
+        for j in range(0, 28):
+            print("%3d" % (x[0][(n * 28) + j]), end=' ')
+            pRL.append(x[0][(n * 28) + j])
+        print("")
+        eL.append(pRL)'''
+    floatArr = []
+    for n in x[0]:
+        floatArr.append(n/255.0)
+    return floatArr
+
+
+def loadMNISTDataConv(imageFilePath, labelFilePath):
+    x, y = loadlocal_mnist(
+        images_path=imageFilePath,
+        labels_path=labelFilePath)
+    print(len(x[0]))
+    print(len(y))
+    print((x[0]))
     eL = []
     for n in range(0, 28):
         pRL = []
@@ -44,6 +65,7 @@ def showImage(image):
         eL.append(pRL)
     plot.imshow(eL, cmap=plot.cm.binary)
     plot.show()
+
 
 def loadMNISTDataArray(imageFilePath, labelFilePath):
     x, y = loadlocal_mnist(

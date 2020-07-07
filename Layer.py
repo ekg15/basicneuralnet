@@ -90,6 +90,7 @@ class Layer:
             for l in range(0, len(nextLayer.nodeList)):
                 sigmoidOfZNext = 1.0 / (1 + math.pow(math.e, -1 * nextLayer.nodeList[l].z))
                 # for inner layer partial we need to sum effects of this partial on each of next layer's partials
+                # print(nextLayer.nodeList[l].weights)
                 costOverActivationPartial += nextLayer.costOverActivationPartials[l] * (sigmoidOfZNext * (1 - sigmoidOfZNext)) \
                     * nextLayer.nodeList[l].weights[i]
                 # print(nextLayer.nodeList[l].weights[i], l, i)
