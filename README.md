@@ -16,3 +16,6 @@ Network Class:
 Centered around a list of Layers, this object contains methods for quickly and easily setting up a network of arbitrary size and running the learning process on properly formatted training data.
 
 The purpose of ImageFormatting.py is self explanatory. It's pretty miscellanious in there.
+
+ConvolutionLayer Class:
+A class that will handle the convolution of a kernel and an input image resulting in a potentially pooled feature map, as well as the backpropagation of the error and application of the gradient to the kernel weights.
