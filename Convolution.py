@@ -38,6 +38,7 @@ def convolve():
     f1.applyGradient(layer1, layer2, layer3, loadMNISTData('./train-images-idx3-ubyte', './train-labels-idx1-ubyte'), lambda x: x)
     cl = ConvolutionLayer(filters=[k1])
     cl.maps = [np.random.random((3, 3))]
+    print("================================Convolution operation================================")
     f1.convolveToFeatMap(loadMNISTData('./train-images-idx3-ubyte', './train-labels-idx1-ubyte'))
     # print(cl.maps[0])
     # print(cl.poolMaps(2))
@@ -68,9 +69,33 @@ class ConvolutionLayer:
 
     def poolMaps(self, n, mode="average"):
         # apply pooling method to feature maps
+        # returns an nxn pooled feature map
+        # a superior method might be dividing into ceil(k^2/n^2) different groups
         pooled = []
         for fm in self.maps:
             # how many features should be combined
+            grabsize = np.shape(fm)[0] - n + 1
+            pm = np.ndarray((n, n))
+            for i in range(n):
+                for j in range(n):
+                    if mode == "average":
+                        print(fm[i:i + grabsize, j:j + grabsize])
+                        pm[i][j] = np.average(fm[i:i + grabsize, j:j + grabsize])
+                    else:
+                        pm[i][j] = np.max(fm[i:i + grabsize, j:j + grabsize])
+            pooled.append(pm)
+        self.pooledmaps = pooled
+        return pooled
+
+    def poolMapsRedux(self, n, mode="average"):
+        # apply pooling method to feature maps
+        # returns an nxn pooled feature map
+        # a superior method might be dividing into ceil(k^2/n^2) different groups
+        # also a nice way to establish map from pooled to raw feat
+        pooled = []
+        for fm in self.maps:
+            # how many features should be combined
+            # ceil(k/n) x ceil(k/n) areas
             grabsize = np.shape(fm)[0] - n + 1
             pm = np.ndarray((n, n))
             for i in range(n):
@@ -110,15 +135,23 @@ class Filter:
         imgreshaped = np.reshape(np.array(image), (imglength, imglength))
         maybe = np.convolve(self.kernel.flatten(), np.array(image), 'valid')
         print(imglength)
+        print(self.kernel)
         print(np.shape(maybe))
+        print(maybe)
         # try 2d
         # print(imgreshaped)
         for i in range(featmapLength):
             for j in range(featmapLength):
                 # convolve kernel and image[i:i+self.n, j:j+self.n]
+                # 7/12: Some sort of weird bug here in regards to array formatting
+                # I should probably just do convolution manually
                 featmap[i][j] = np.convolve(self.kernel, imgreshaped[i:i+self.n, j:j+self.n], 'valid')
         print(featmap)
         return featmap
+
+    # TODO: Need to get gradient to work on pooled features
+    # Could use a pooled object? Perhaps a pooled feature map can be associated with a mapping of a pooled feature
+    # to raw features, which can then be easily translated back to weights.
 
     def applyGradient(self, inputLayer, nextLayer, layerLplus2, image, upsample):
         # calculate gradient for all n^2 weights in a kernel
