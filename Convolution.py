@@ -200,7 +200,7 @@ class Filter:
 
     # do we really need layerLplus2?
 
-    def applyGradient(self, inputLayer, nextLayer, layerLplus2, image, upsample):
+    def applyGradient(self, inputLayer, nextLayer, image, upsample):
         # calculate gradient for all n^2 weights in a kernel
         # gradient of next layer, dE/dx
         # organized as: d_l1[0] for node 0
@@ -208,11 +208,8 @@ class Filter:
         # add a dummy costOverActivationPartials array to layerLplus2
         # array of floats, should match (each float is partial derivative of the cost function relative to this node's activation)
         # should be the length of layerLplus2
-        dummypartials = [1 for i in range(len(layerLplus2.nodeList))]
         # print(dummypartials)
-        layerLplus2.costOverActivationPartials = dummypartials
-        delta_L1 = nextLayer.calculatePartialsInner(None, layerLplus2, inputLayer)
-        delta_L0 = inputLayer.calculatePartialsInner(None, nextLayer, Layer(nodeList=list(map(lambda x: Node(activationValue=x), self.kernel.flatten()))))
+        # by the time this is called, this should actually exist
         delta_L0_maybe = inputLayer.costOverActivationPartials
         # print(delta_L1)
         print(delta_L0_maybe)
