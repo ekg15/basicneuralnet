@@ -5,6 +5,7 @@ from Layer import *
 class Network:
     def __init__(self):
         self.layers = []
+        self.convLayer = None
 
     def addInputLayer(self, numOfNodes):
         eLL = []
@@ -25,6 +26,11 @@ class Network:
 
     def feedInputLayer(self, inputArray):
         self.layers[0].inputFromImageArray(inputArray)
+
+
+    def feedInputLayerConv(self):
+        self.layers[0].inputFromFeatMaps(self.convLayer.maps)
+
 
     def activateLayers(self):
         for i in range(1, len(self.layers)):
@@ -76,6 +82,7 @@ class Network:
         expectedValueArray[expectedResult] = 1
         return expectedValueArray
 
+
     def runOnTrainingSet(self, inputArrays, expectedValueArray, numofClassifications):
         resList = []
         sgdGradient = []
@@ -86,6 +93,26 @@ class Network:
             print(self.layers[-1].getHighestActivation(), expectedValueArray[i])
             resList.append((self.layers[-1].getHighestActivation(), expectedValueArray[i]))
             sgdGradient.append(self.calculatePartials(expValArr))
+            # if i % 1000 == 0 and i != 0:
+            #     self.calcAndApplyGradient(sgdGradient)
+        print(resList)
+        fail = 0
+        numpass = 0
+        print(sum(1 for x, y in resList[:-50] if x == y) / len(resList[:-50]))
+        print(sum(1 for x, y in resList[-50:] if x == y) / len(resList[-50:]))
+
+
+    def runOnTrainingSetConvolution(self, inputArrays, expectedValueArray, numofClassifications):
+        resList = []
+        sgdGradient = []
+        for i in range(0, len(inputArrays)):
+            expValArr = self.getResultsArray(expectedValueArray[i], numofClassifications)
+            self.feedInputLayer(inputArrays[i])
+            self.activateLayers()
+            print(self.layers[-1].getHighestActivation(), expectedValueArray[i])
+            resList.append((self.layers[-1].getHighestActivation(), expectedValueArray[i]))
+            sgdGradient.append(self.calculatePartials(expValArr))
+            self.convLayer.backprop(inputArrays[i])
             # if i % 1000 == 0 and i != 0:
             #     self.calcAndApplyGradient(sgdGradient)
         print(resList)

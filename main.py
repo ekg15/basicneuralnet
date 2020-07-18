@@ -51,6 +51,22 @@ def convtest():
     layer2.applyGradient(wGI1)
     convlayer.backprop(image)
 
+    inputArray, valueArray = loadMNISTDataArray('./train-images-idx3-ubyte', './train-labels-idx1-ubyte')
+    network = Network()
+    network.addInputLayer(722)
+    network.addInnerLayer(32)
+    network.addInnerLayer(16)
+    network.addInnerLayer(10)
+    k1 = np.random.rand(10, 10)
+    k2 = np.random.rand(10, 10)
+    f1 = Filter(10, k1)
+    f2 = Filter(10, k2)
+    filters = [f1, f2]
+    convlayer = ConvolutionLayer(inputlayer=network.layers[0], nextLayer=network.layers[1], filters=filters)
+    network.convLayer = convlayer
+    network.runOnTrainingSetConvolution(inputArray[0:10000], valueArray[0:10000], 10)
+
+
 
 
 
