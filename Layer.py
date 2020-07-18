@@ -43,6 +43,13 @@ class Layer:
             n.calculateActivationValueFromInput(imageArray[index]/255)
             index += 1
 
+    def inputFromFeatMaps(self, maps):
+        maplen = maps[0].flatten().size
+        for i in range(len(self.nodeList)):
+            for f in maps[i//maplen].flatten():
+                self.nodeList[i].calculateActivationValueFromInput(f)
+
+
     def dummyInputNodes(self):
         for n in self.nodeList:
             n.calculateActivationValueFromInput(1)

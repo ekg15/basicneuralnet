@@ -1,4 +1,5 @@
 import numpy as np
+from scipy.signal import convolve2d
 from numpy.fft import *
 from ImageFormatting import *
 from Node import *
@@ -34,13 +35,14 @@ def convolve():
     layer1.dummyInputNodes()
     layer2.createWeightMatrix(layer1)
     layer3.createWeightMatrix(layer2)
-    k1 = np.random.rand(5, 5)
-    f1 = Filter(5, k1)
-    f1.applyGradient(layer1, layer2, layer3, loadMNISTData('./train-images-idx3-ubyte', './train-labels-idx1-ubyte'), lambda x: x)
-    cl = ConvolutionLayer(filters=[k1])
+    k1 = np.ones((3, 3), dtype='float')
+    f1 = Filter(3, k1)
+    # f1.applyGradient(layer1, layer2, loadMNISTData('./train-images-idx3-ubyte', './train-labels-idx1-ubyte'), lambda x: x)
+    cl = ConvolutionLayer(filters=[f1])
     cl.maps = [np.random.random((3, 3))]
     print("================================Convolution operation================================")
     f1.convolveToFeatMap(loadMNISTData('./train-images-idx3-ubyte', './train-labels-idx1-ubyte'))
+    f1.convolveToFeatMap([1, 1, 1, 1, 1, 1, 1, 1, 1])
     # print(cl.maps[0])
     # TODO: below
     # print(cl.poolMapsRedux(2))
@@ -48,7 +50,7 @@ def convolve():
 
 
 class ConvolutionLayer:
-    def __init__(self, inputlayer=None, previousLayer=None, nextLayer=None, filters=None):
+    def __init__(self, inputlayer=None, nextLayer=None, filters=None):
         # list of all kernels for feature finding that will be applied to input
         # array of filter class
         if filters is None:
@@ -60,8 +62,6 @@ class ConvolutionLayer:
         # needs: pool, filter
         # use grabsize and knowledge of method to backprop grad to weights evenly or dirac
         self.upsample = lambda x: x
-        # either convolution layer or image (None)
-        self.previousLayer = previousLayer
         # either densely connected or convolution
         self.nextlayer = nextLayer
         self.inputlayer = inputlayer
@@ -70,8 +70,14 @@ class ConvolutionLayer:
 
     def backprop(self, image):
         # all filters apply grads, give proper info
+        kernels = reduce(lambda x, y: np.vstack((x, y)), list(map(lambda x: x.kernel, self.filters)))
+        self.inputlayer.calculatePartialsInner(None, self.nextlayer, Layer(
+            nodeList=list(map(lambda x: Node(activationValue=x), kernels.flatten()))))
+        c = 0
         for f in self.filters:
+            f.position = c
             f.applyGradient(self.inputlayer, self.nextlayer, image, lambda x: x)
+            c += 1
 
     def runFilters(self, image):
         # create feature maps
@@ -173,6 +179,7 @@ class Filter:
         self.currGrad = []
         self.currentFeatMap = []
         self.n = n
+        self.position = 0
 
 
     def convolveToFeatMap(self, image):
@@ -186,12 +193,15 @@ class Filter:
         # technically correct, but the image is ill-formatted
         # maybe = np.convolve(self.kernel.flatten(), np.array(image), 'valid')
         # maybe2 = np.convolve(self.kernel, imgreshaped, 'valid')
-        convres = np.real(ifft2(fft2(imgreshaped) * fft2(self.kernel, s=imgreshaped.shape)))
+        # not going to do FFT.
+        convres = convolve2d(imgreshaped, self.kernel, mode='valid')
         print(convres)
-        print(convres.flatten())
+        # print(convres.flatten())
         print(convres.shape)
+        print(self.kernel.shape)
+
         # returns a flattened convolution of the two, equal to the original dimension of the image
-        return convres.flatten()
+        return convres
 
     # Tabled: Need to get gradient to work on pooled features
     # Could use a pooled object? Perhaps a pooled feature map can be associated with a mapping of a pooled feature
@@ -235,7 +245,7 @@ class Filter:
                         # split weight activation via dirac or avg
                         # upsample is to return an array of grads to be split amongst weights
                         # for average pooling, I've determined nothing will be done at the moment.
-                        elem_influence = delta_L0_maybe[i * featmapLength + j]
+                        elem_influence = delta_L0_maybe[(self.position * featmapLength ** 2) + i * featmapLength + j]
                         # print(image[(itr.multi_index[0] + i) * imglength + itr.multi_index[1] + j])
                         # dE/d_xij
                         # print(delta_L0_maybe[i * featmapLength + j])

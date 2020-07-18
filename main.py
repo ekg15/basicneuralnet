@@ -1,9 +1,58 @@
 import math
+from Convolution import *
 from Node import *
 from Layer import *
 from Network import *
 from ImageFormatting import *
 from random import *
+
+
+def convtest():
+    image = [1, 1, 1, 1, 1, 1, 1, 1, 1]
+    expectedResultsArray = [0, 1]
+    k1 = np.ones((2, 2), dtype='float')
+    k2 = np.ones((2, 2), dtype='float')
+    f1 = Filter(2, k1)
+    f2 = Filter(2, k2)
+    filters = [f1, f2]
+    layer1 = Layer()
+    layer2 = Layer()
+    layer3 = Layer()
+    layer1.generateInputNodes(8)
+    layer2.generateInnerNodes(3, layer1)
+    layer3.generateInnerNodes(2, layer2)
+    convlayer = ConvolutionLayer(inputlayer=layer1, nextLayer=layer2, filters=filters)
+    convlayer.runFilters(image)
+
+    layer1.inputFromFeatMaps(convlayer.maps)
+    for n in layer1.nodeList:
+        print(n.activationValue)
+
+    layer2.createWeightMatrix(layer1)
+    layer3.createWeightMatrix(layer2)
+
+    # layer2.checkWeights()
+    # layer3.checkWeights()
+
+    layer2.activateNodes()
+    # for n in layer2.nodeList:
+    #    print(n.activationValue)
+
+    print("L3 activ")
+    layer3.activateNodes()
+    for n in layer3.nodeList:
+        print(n.activationValue)
+
+    wGF = layer3.calculatePartialsLast(expectedResultsArray, layer2)
+    # print(wGF)
+    wGI1 = layer2.calculatePartialsInner(wGF, layer3, layer1)
+    # print(wGI1)
+    layer3.applyGradient(wGF)
+    layer2.applyGradient(wGI1)
+    convlayer.backprop(image)
+
+
+
 
 
 def main():
@@ -42,7 +91,7 @@ def main():
     cost = layer4.calculateCost(expectedResultsArray)
     print("cost", cost)
     wGF = layer4.calculatePartialsLast(expectedResultsArray, layer3)
-    wGI1 = layer3.calculatePartialsInner(wGF, layer4, layer2)
+    # wGI1 = layer3.calculatePartialsInner(wGF, layer4, layer2)
     wGI1 = layer3.calculatePartialsInner(wGF, layer4, layer2)
     print("Layer 2 Partial Calculation")
     wGI = layer2.calculatePartialsInner(wGI1, layer3, layer1)
@@ -83,4 +132,4 @@ def main():
 
 
 if __name__ == '__main__':
-    main()
+    convtest()
