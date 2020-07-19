@@ -165,7 +165,7 @@ class ConvolutionLayer:
             pooled.append(pm)
             c += 1
         self.pooledmaps = pooled
-        print(poolToFeatEntryMap)
+        # print(poolToFeatEntryMap)
         return pooled
 
 
@@ -195,10 +195,10 @@ class Filter:
         # maybe2 = np.convolve(self.kernel, imgreshaped, 'valid')
         # not going to do FFT.
         convres = convolve2d(imgreshaped, self.kernel, mode='valid')
-        print(convres)
+        # print(convres)
         # print(convres.flatten())
-        print(convres.shape)
-        print(self.kernel.shape)
+        # print(convres.shape)
+        # print(self.kernel.shape)
 
         # returns a flattened convolution of the two, equal to the original dimension of the image
         return convres
@@ -222,8 +222,8 @@ class Filter:
         # by the time this is called, this should actually exist
         delta_L0_maybe = inputLayer.costOverActivationPartials
         # print(delta_L1)
-        print(delta_L0_maybe)
-        print(len(delta_L0_maybe))
+        # print(delta_L0_maybe)
+        # print(len(delta_L0_maybe))
         # print(image)
         imglength = int(math.sqrt(len(image)))
         featmapLength = imglength - self.n
@@ -235,7 +235,7 @@ class Filter:
         gradArr = np.ndarray((self.n, self.n))
         with np.nditer(self.kernel, flags=['multi_index']) as itr:
             for q in itr:
-                print(q, itr.multi_index)
+                # print(q, itr.multi_index)
                 sum_q = 0.0
                 for i in range(featmapLength):
                     for j in range(featmapLength):
@@ -262,11 +262,11 @@ class Filter:
                 # dx/dw = value input to w
                 # value input is given by coords of weight + coords of featmap
                 # so the weight at (1,3) for x_8,9 of featmap is 9,12 in the image
-        print(gradArr)
+        # print(gradArr)
         self.currGrad = -1 * gradArr
-        print(self.kernel)
+        # print(self.kernel)
         self.kernel = self.kernel + self.currGrad
-        print(self.kernel)
+        # print(self.kernel)
         return gradArr
 
 

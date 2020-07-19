@@ -53,18 +53,22 @@ def convtest():
 
     inputArray, valueArray = loadMNISTDataArray('./train-images-idx3-ubyte', './train-labels-idx1-ubyte')
     network = Network()
-    network.addInputLayer(722)
+    network.addInputLayer(784)
     network.addInnerLayer(32)
     network.addInnerLayer(16)
     network.addInnerLayer(10)
-    k1 = np.random.rand(10, 10)
-    k2 = np.random.rand(10, 10)
-    f1 = Filter(10, k1)
-    f2 = Filter(10, k2)
-    filters = [f1, f2]
+    k1 = np.random.rand(15, 15)
+    k2 = np.random.rand(15, 15)
+    k3 = np.random.rand(15, 15)
+    k4 = np.random.rand(15, 15)
+    f1 = Filter(15, k1)
+    f2 = Filter(15, k2)
+    f3 = Filter(15, k3)
+    f4 = Filter(15, k4)
+    filters = [f1, f2, f3, f4]
     convlayer = ConvolutionLayer(inputlayer=network.layers[0], nextLayer=network.layers[1], filters=filters)
     network.convLayer = convlayer
-    network.runOnTrainingSetConvolution(inputArray[0:10000], valueArray[0:10000], 10)
+    network.runOnTrainingSetConvolution(inputArray[0:5000], valueArray[0:5000], 10)
 
 
 
