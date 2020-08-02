@@ -2,6 +2,7 @@ import math
 from functools import reduce
 from Node import *
 from random import *
+import numpy as np
 
 
 class Layer:
@@ -68,13 +69,8 @@ class Layer:
         return cost
 
     def getHighestActivation(self):
-        eAL = []
-        for n in self.nodeList:
-            eAL.append(n.activationValue)
-        for n in self.nodeList:
-            if max(eAL) == n.activationValue:
-                return self.nodeList.index(n)
-        return max(eAL)
+        activs = list(map(lambda x: x.activationValue, self.nodeList))
+        return max(list(range(len(activs))), key=lambda x: activs[x])
 
 
     # going to need new Partial Derivative function to work with Convolutional layers

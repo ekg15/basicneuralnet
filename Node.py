@@ -16,6 +16,7 @@ class Node:
             z += node.activationValue * self.weights[index]
             index += 1
         # print("z", z)
+        z = max(min(z, 500), -500)
         self.z = z
         # sigmoid hardcoded lol
         self.activationValue = 1.0/(1.0 + math.pow(math.e, -1.0 * z))

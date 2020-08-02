@@ -37,12 +37,13 @@ def convolve():
     layer3.createWeightMatrix(layer2)
     k1 = np.ones((3, 3), dtype='float')
     f1 = Filter(3, k1)
-    # f1.applyGradient(layer1, layer2, loadMNISTData('./train-images-idx3-ubyte', './train-labels-idx1-ubyte'), lambda x: x)
     cl = ConvolutionLayer(filters=[f1])
     cl.maps = [np.random.random((3, 3))]
     print("================================Convolution operation================================")
-    f1.convolveToFeatMap(loadMNISTData('./train-images-idx3-ubyte', './train-labels-idx1-ubyte'))
-    f1.convolveToFeatMap([1, 1, 1, 1, 1, 1, 1, 1, 1])
+    # f1.convolveToFeatMap(loadMNISTData('./train-images-idx3-ubyte', './train-labels-idx1-ubyte'))
+    print(f1.convolveToFeatMap(np.arange(16) + 1))
+    layer1.costOverActivationPartials = f1.convolveToFeatMap(np.arange(16) + 1).flatten()
+    f1.applyGradient(layer1, np.arange(16) + 1, lambda x: x)
     # print(cl.maps[0])
     # TODO: below
     # print(cl.poolMapsRedux(2))
@@ -75,14 +76,20 @@ class ConvolutionLayer:
             nodeList=list(map(lambda x: Node(activationValue=x), kernels.flatten()))))
         c = 0
         for f in self.filters:
+            print("=========================new filter=========================")
+            print("position: ", f.position)
             f.position = c
-            f.applyGradient(self.inputlayer, self.nextlayer, image, lambda x: x)
+            f.applyGradient(self.inputlayer, image, lambda x: x)
             c += 1
 
     def runFilters(self, image):
         # create feature maps
         maps = []
         for f in self.filters:
+            # print(f.kernel)
+            # print(image)
+            # x = f.convolveToFeatMap(image)
+            # print(x)
             maps.append(f.convolveToFeatMap(image))
         self.maps = maps
         return maps
@@ -189,19 +196,19 @@ class Filter:
         imglength = int(math.sqrt(len(image)))
         featmapLength = imglength - self.n + 1
         featmap = np.ndarray((featmapLength, featmapLength))
-        imgreshaped = np.reshape(np.array(image), (imglength, imglength))
+        imgreshaped = np.reshape(np.array(image), (imglength, imglength))/255
         # technically correct, but the image is ill-formatted
-        # maybe = np.convolve(self.kernel.flatten(), np.array(image), 'valid')
-        # maybe2 = np.convolve(self.kernel, imgreshaped, 'valid')
         # not going to do FFT.
-        convres = convolve2d(imgreshaped, self.kernel, mode='valid')
-        # print(convres)
-        # print(convres.flatten())
-        # print(convres.shape)
-        # print(self.kernel.shape)
+        # print("kernel: ", self.kernel)
+        convkernel = np.flip(self.kernel.flatten(), 0)
+        # print("convkernel: ", convkernel)
+        # print(imgreshaped)
+        for i in range(featmapLength):
+            for j in range(featmapLength):
+                featmap[i, j] = np.convolve(convkernel, imgreshaped[i:i+self.n, j:j+self.n].flatten(), mode='valid')
 
-        # returns a flattened convolution of the two, equal to the original dimension of the image
-        return convres
+        # returns a convolution of the two of dimension (imglen - n + 1) x (imglen - n + 1)
+        return featmap
 
     # Tabled: Need to get gradient to work on pooled features
     # Could use a pooled object? Perhaps a pooled feature map can be associated with a mapping of a pooled feature
@@ -210,7 +217,7 @@ class Filter:
 
     # do we really need layerLplus2?
 
-    def applyGradient(self, inputLayer, nextLayer, image, upsample):
+    def applyGradient(self, inputLayer, image, upsample):
         # calculate gradient for all n^2 weights in a kernel
         # gradient of next layer, dE/dx
         # organized as: d_l1[0] for node 0
@@ -218,38 +225,37 @@ class Filter:
         # add a dummy costOverActivationPartials array to layerLplus2
         # array of floats, should match (each float is partial derivative of the cost function relative to this node's activation)
         # should be the length of layerLplus2
-        # print(dummypartials)
         # by the time this is called, this should actually exist
         delta_L0_maybe = inputLayer.costOverActivationPartials
-        # print(delta_L1)
         # print(delta_L0_maybe)
-        # print(len(delta_L0_maybe))
-        # print(image)
         imglength = int(math.sqrt(len(image)))
-        featmapLength = imglength - self.n
+        imgreshaped = np.reshape(np.array(image), (imglength, imglength))/255
+        featmapLength = imglength - self.n + 1
         # print(featmapLength)
-        # print(len(image))
-        # 2d or flattened convolution??
-        # we going flattened boys
-        # Flattened rule: kernel_ij touches base + (i * len) + j
         gradArr = np.ndarray((self.n, self.n))
         with np.nditer(self.kernel, flags=['multi_index']) as itr:
             for q in itr:
-                # print(q, itr.multi_index)
+                # print("q ", q, ", index ", itr.multi_index)
                 sum_q = 0.0
                 for i in range(featmapLength):
                     for j in range(featmapLength):
                         # d_xij/dw_q
-                        weight_activ = image[(itr.multi_index[0] + i) * imglength + itr.multi_index[1] + j]
+                        weight_activ = imgreshaped[i + (self.n - 1 - itr.multi_index[0]), j + (self.n - 1 - itr.multi_index[1])]
                         # upsample goes here if pooled
                         # split weight activation via dirac or avg
                         # upsample is to return an array of grads to be split amongst weights
                         # for average pooling, I've determined nothing will be done at the moment.
+                        # TODO: at the moment, all filters must be of the same dimension
+                        # print("pos in activs: ", (self.position * featmapLength ** 2) + i * featmapLength + j)
                         elem_influence = delta_L0_maybe[(self.position * featmapLength ** 2) + i * featmapLength + j]
-                        # print(image[(itr.multi_index[0] + i) * imglength + itr.multi_index[1] + j])
+                        # print("pos in image: ", i + (self.n - 1 - itr.multi_index[0]), ", ",  j + (self.n - 1 - itr.multi_index[1]))
                         # dE/d_xij
                         # print(delta_L0_maybe[i * featmapLength + j])
                         sum_q += weight_activ * elem_influence
+                        # print(sum_q)
+                        # print(featmapLength)
+                        # print(i)
+                        # print(j)
                 # gradient for indiv weight
                 gradArr[itr.multi_index] = sum_q
                 # may need to include activation function??
@@ -262,11 +268,11 @@ class Filter:
                 # dx/dw = value input to w
                 # value input is given by coords of weight + coords of featmap
                 # so the weight at (1,3) for x_8,9 of featmap is 9,12 in the image
-        # print(gradArr)
         self.currGrad = -1 * gradArr
-        # print(self.kernel)
+        # print("gradient for kernel:", self.currGrad)
+        # print("before:", self.kernel)
         self.kernel = self.kernel + self.currGrad
-        # print(self.kernel)
+        # print("after:", self.kernel)
         return gradArr
 
 
