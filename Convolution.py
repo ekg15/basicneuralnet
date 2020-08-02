@@ -76,8 +76,8 @@ class ConvolutionLayer:
             nodeList=list(map(lambda x: Node(activationValue=x), kernels.flatten()))))
         c = 0
         for f in self.filters:
-            print("=========================new filter=========================")
-            print("position: ", f.position)
+            # print("=========================new filter=========================")
+            # print("position: ", f.position)
             f.position = c
             f.applyGradient(self.inputlayer, image, lambda x: x)
             c += 1

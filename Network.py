@@ -110,9 +110,9 @@ class Network:
             self.convLayer.runFilters(inputArrays[i])
             self.feedInputLayerConv()
             self.activateLayers()
-            for n in self.layers[-1].nodeList:
-                print(n.activationValue, end=",")
-            print("\n", self.layers[-1].getHighestActivation(), expectedValueArray[i])
+            # for n in self.layers[-1].nodeList:
+            #     print(n.activationValue, end=",")
+            print(self.layers[-1].getHighestActivation(), expectedValueArray[i])
             resList.append((self.layers[-1].getHighestActivation(), expectedValueArray[i]))
             sgdGradient.append(self.calculatePartials(expValArr))
             self.convLayer.backprop(inputArrays[i])
