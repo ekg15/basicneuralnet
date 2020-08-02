@@ -142,3 +142,5 @@ class Layer:
             # j is for each node the next layer, aka weight [i][j] between the previous layer's node j and node i
             for j in range(0, len(partialMatrix[i])):
                 self.nodeList[i].weights[j] += -1 * partialMatrix[i][j]
+        print("average val of gradient ", len(self.nodeList), ": ", np.average(np.array(partialMatrix)))
+

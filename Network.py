@@ -85,14 +85,13 @@ class Network:
 
     def runOnTrainingSet(self, inputArrays, expectedValueArray, numofClassifications):
         resList = []
-        sgdGradient = []
         for i in range(0, len(inputArrays)):
             expValArr = self.getResultsArray(expectedValueArray[i], numofClassifications)
             self.feedInputLayer(inputArrays[i])
             self.activateLayers()
             print(self.layers[-1].getHighestActivation(), expectedValueArray[i])
             resList.append((self.layers[-1].getHighestActivation(), expectedValueArray[i]))
-            sgdGradient.append(self.calculatePartials(expValArr))
+            self.calculatePartials(expValArr)
             # if i % 1000 == 0 and i != 0:
             #     self.calcAndApplyGradient(sgdGradient)
         print(resList)

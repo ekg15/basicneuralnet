@@ -270,6 +270,7 @@ class Filter:
                 # so the weight at (1,3) for x_8,9 of featmap is 9,12 in the image
         self.currGrad = -1 * gradArr
         # print("gradient for kernel:", self.currGrad)
+        print("Avg val of gradient conv: ", np.average(self.currGrad))
         # print("before:", self.kernel)
         self.kernel = self.kernel + self.currGrad
         # print("after:", self.kernel)
