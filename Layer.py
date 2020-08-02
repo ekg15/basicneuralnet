@@ -22,6 +22,18 @@ class Layer:
             eL.append(Node(previousLayer.nodeList))
         self.nodeList = eL
 
+    def generateInputNodesConv(self, numOfNodes):
+        eL = []
+        for i in range(0, numOfNodes):
+            eL.append(Node(activationFunction=lambda x: .01 * x if x < 0 else x))
+        self.nodeList = eL
+
+    def generateInnerNodesConv(self, numOfNodes, previousLayer):
+        eL = []
+        for i in range(0, numOfNodes):
+            eL.append(Node(inputLayer=previousLayer.nodeList, activationFunction=lambda x: .01 * x if x < 0 else x))
+        self.nodeList = eL
+
     def createWeightMatrix(self, previousLayer):
         lmao = []
         for i in range(0, len(self.nodeList)):
@@ -107,6 +119,69 @@ class Layer:
             eL.append(costOverActivationPartial)
             weightGradient.append(partialList)
         self.costOverActivationPartials = eL
+        return weightGradient
+
+
+    def calculatePartialsInnerRelu(self, nextLayerWeightGradient, nextLayer, previousLayer):
+        eL = []
+        weightGradient = []
+        # each node in this layer. We access the necessary weights by iterating over this and the next layer,
+        # which will provide the matching coordinates in out weight matrix
+        for i in range(0, len(self.nodeList)):
+            # print("starting")
+            partialList = []
+            # [l][i] is how each node l in the next layer is affected by node i in current layer
+            costOverActivationPartial = 0.0
+            for l in range(0, len(nextLayer.nodeList)):
+                # print(nextLayer.nodeList[l].z)
+                reLuOfZNext = .01 * nextLayer.nodeList[l].z if nextLayer.nodeList[l].z < 0 else nextLayer.nodeList[l].z
+                derivativeOfZNext = .01 if nextLayer.nodeList[l].z < 0 else 0
+                # for inner layer partial we need to sum effects of this partial on each of next layer's partials
+                # print(nextLayer.nodeList[l].weights)
+                costOverActivationPartial += nextLayer.costOverActivationPartials[l] * derivativeOfZNext \
+                    * nextLayer.nodeList[l].weights[i]
+                # print(nextLayer.nodeList[l].weights[i], l, i)
+                # print(nextLayer.costOverActivationPartials[l])
+            # now iterating over the weights (between current[i] and prev[j]) in our matrix and calculating partials
+            for j in range(0, len(previousLayer.nodeList)):
+                reLuOfZ = self.nodeList[i].z
+                derivativeOfZ = 1
+                partialij = costOverActivationPartial * derivativeOfZ * previousLayer.nodeList[j].activationValue
+                partialList.append(partialij)
+            # append partial derivative of the cost function relative to this node's activation
+            eL.append(costOverActivationPartial)
+            weightGradient.append(partialList)
+        self.costOverActivationPartials = eL
+        return weightGradient
+
+
+    def calculatePartialsInputLinear(self, nextLayerWeightGradient, nextLayer):
+        eL = []
+        weightGradient = []
+        # each node in this layer. We access the necessary weights by iterating over this and the next layer,
+        # which will provide the matching coordinates in out weight matrix
+        for i in range(0, len(self.nodeList)):
+            # print("starting")
+            partialList = []
+            # [l][i] is how each node l in the next layer is affected by node i in current layer
+            costOverActivationPartial = 0.0
+            for l in range(0, len(nextLayer.nodeList)):
+                # print(nextLayer.nodeList[l].z)
+                reLuOfZNext = .01 * nextLayer.nodeList[l].z if nextLayer.nodeList[l].z < 0 else nextLayer.nodeList[l].z
+                derivativeOfZNext = .01 if nextLayer.nodeList[l].z < 0 else 1
+                # for inner layer partial we need to sum effects of this partial on each of next layer's partials
+                # print(nextLayer.nodeList[l].weights)
+                # print(nextLayer.costOverActivationPartials[l])
+                # print(derivativeOfZNext)
+                costOverActivationPartial += nextLayer.costOverActivationPartials[l] * derivativeOfZNext \
+                    * nextLayer.nodeList[l].weights[i]
+            # print(costOverActivationPartial)
+            # append partial derivative of the cost function relative to this node's activation
+            eL.append(costOverActivationPartial)
+            weightGradient.append(partialList)
+        self.costOverActivationPartials = eL
+        # print(self.costOverActivationPartials)
+        print("max input partial: ", max(self.costOverActivationPartials))
         return weightGradient
 
 

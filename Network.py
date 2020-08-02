@@ -53,6 +53,24 @@ class Network:
             self.layers[-i].applyGradient(gradient[i-1])
         return gradient
 
+
+    def calculatePartialsConv(self, expectedValueArray):
+        gradient = []
+        currWeightGradient = self.layers[-1].calculatePartialsLast(expectedValueArray, self.layers[-2])
+        gradient.append(currWeightGradient)
+        for i in range(len(self.layers) - 2, 0, -1):
+            # i + 1 is next layer, i - 1 is previous. Remember that partials are calculated from last layer back
+            currWeightGradient = self.layers[i].calculatePartialsInnerRelu(currWeightGradient, self.layers[i+1], self.layers[i-1])
+            print("================", i)
+            gradient.append(currWeightGradient)
+            print("average of grad: ", np.average(np.array(currWeightGradient)))
+        for i in range(1, len(gradient) + 1):
+            # print(gradient[i-1])
+            self.layers[-i].applyGradient(gradient[i-1])
+        self.layers[0].calculatePartialsInputLinear(currWeightGradient, self.layers[1])
+        # print(self.layers[0].costOverActivationPartials)
+        return gradient
+
     def calcAndApplyGradient(self, gradients):
         # all gradients compiled by running network
         print(len(gradients))
@@ -113,7 +131,7 @@ class Network:
             #     print(n.activationValue, end=",")
             print(self.layers[-1].getHighestActivation(), expectedValueArray[i])
             resList.append((self.layers[-1].getHighestActivation(), expectedValueArray[i]))
-            sgdGradient.append(self.calculatePartials(expValArr))
+            sgdGradient.append(self.calculatePartialsConv(expValArr))
             self.convLayer.backprop(inputArrays[i])
             # if i % 1000 == 0 and i != 0:
             #     self.calcAndApplyGradient(sgdGradient)

@@ -72,8 +72,7 @@ class ConvolutionLayer:
     def backprop(self, image):
         # all filters apply grads, give proper info
         kernels = reduce(lambda x, y: np.vstack((x, y)), list(map(lambda x: x.kernel, self.filters)))
-        self.inputlayer.calculatePartialsInner(None, self.nextlayer, Layer(
-            nodeList=list(map(lambda x: Node(activationValue=x), kernels.flatten()))))
+        self.inputlayer.calculatePartialsInputLinear(None, self.nextlayer)
         c = 0
         for f in self.filters:
             # print("=========================new filter=========================")
@@ -227,6 +226,7 @@ class Filter:
         # should be the length of layerLplus2
         # by the time this is called, this should actually exist
         delta_L0_maybe = inputLayer.costOverActivationPartials
+        print(np.average(np.array(delta_L0_maybe)))
         # print(delta_L0_maybe)
         imglength = int(math.sqrt(len(image)))
         imgreshaped = np.reshape(np.array(image), (imglength, imglength))/255
