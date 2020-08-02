@@ -61,9 +61,9 @@ class Network:
         for i in range(len(self.layers) - 2, 0, -1):
             # i + 1 is next layer, i - 1 is previous. Remember that partials are calculated from last layer back
             currWeightGradient = self.layers[i].calculatePartialsInnerRelu(currWeightGradient, self.layers[i+1], self.layers[i-1])
-            print("================", i)
+            # print("================", i)
             gradient.append(currWeightGradient)
-            print("average of grad: ", np.average(np.array(currWeightGradient)))
+            # print("average of grad: ", np.average(np.array(currWeightGradient)))
         for i in range(1, len(gradient) + 1):
             # print(gradient[i-1])
             self.layers[-i].applyGradient(gradient[i-1])

@@ -226,7 +226,7 @@ class Filter:
         # should be the length of layerLplus2
         # by the time this is called, this should actually exist
         delta_L0_maybe = inputLayer.costOverActivationPartials
-        print(np.average(np.array(delta_L0_maybe)))
+        # print(np.average(np.array(delta_L0_maybe)))
         # print(delta_L0_maybe)
         imglength = int(math.sqrt(len(image)))
         imgreshaped = np.reshape(np.array(image), (imglength, imglength))/255
@@ -270,7 +270,8 @@ class Filter:
                 # so the weight at (1,3) for x_8,9 of featmap is 9,12 in the image
         self.currGrad = -1 * gradArr
         # print("gradient for kernel:", self.currGrad)
-        print("Avg val of gradient conv: ", np.average(self.currGrad))
+        # print("Avg val of gradient conv: ", np.average(self.currGrad))
+        # print("Std dev of gradient conv: ", np.sqrt(np.var(self.currGrad)))
         # print("before:", self.kernel)
         self.kernel = self.kernel + self.currGrad
         # print("after:", self.kernel)

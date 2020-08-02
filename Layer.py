@@ -25,13 +25,13 @@ class Layer:
     def generateInputNodesConv(self, numOfNodes):
         eL = []
         for i in range(0, numOfNodes):
-            eL.append(Node(activationFunction=lambda x: .01 * x if x < 0 else x))
+            eL.append(Node(activationFunction=lambda x: .02 * x if x < 0 else x))
         self.nodeList = eL
 
     def generateInnerNodesConv(self, numOfNodes, previousLayer):
         eL = []
         for i in range(0, numOfNodes):
-            eL.append(Node(inputLayer=previousLayer.nodeList, activationFunction=lambda x: .01 * x if x < 0 else x))
+            eL.append(Node(inputLayer=previousLayer.nodeList, activationFunction=lambda x: .02 * x if x < 0 else x))
         self.nodeList = eL
 
     def createWeightMatrix(self, previousLayer):
@@ -134,8 +134,8 @@ class Layer:
             costOverActivationPartial = 0.0
             for l in range(0, len(nextLayer.nodeList)):
                 # print(nextLayer.nodeList[l].z)
-                reLuOfZNext = .01 * nextLayer.nodeList[l].z if nextLayer.nodeList[l].z < 0 else nextLayer.nodeList[l].z
-                derivativeOfZNext = .01 if nextLayer.nodeList[l].z < 0 else 0
+                reLuOfZNext = .02 * nextLayer.nodeList[l].z if nextLayer.nodeList[l].z < 0 else nextLayer.nodeList[l].z
+                derivativeOfZNext = .02 if nextLayer.nodeList[l].z < 0 else 0
                 # for inner layer partial we need to sum effects of this partial on each of next layer's partials
                 # print(nextLayer.nodeList[l].weights)
                 costOverActivationPartial += nextLayer.costOverActivationPartials[l] * derivativeOfZNext \
@@ -144,8 +144,8 @@ class Layer:
                 # print(nextLayer.costOverActivationPartials[l])
             # now iterating over the weights (between current[i] and prev[j]) in our matrix and calculating partials
             for j in range(0, len(previousLayer.nodeList)):
-                reLuOfZ = self.nodeList[i].z
-                derivativeOfZ = 1
+                reLuOfZ = .02 * self.nodeList[i].z if self.nodeList[i].z < 0 else self.nodeList[i].z
+                derivativeOfZ = .02 if self.nodeList[i].z < 0 else 0
                 partialij = costOverActivationPartial * derivativeOfZ * previousLayer.nodeList[j].activationValue
                 partialList.append(partialij)
             # append partial derivative of the cost function relative to this node's activation
@@ -167,8 +167,8 @@ class Layer:
             costOverActivationPartial = 0.0
             for l in range(0, len(nextLayer.nodeList)):
                 # print(nextLayer.nodeList[l].z)
-                reLuOfZNext = .01 * nextLayer.nodeList[l].z if nextLayer.nodeList[l].z < 0 else nextLayer.nodeList[l].z
-                derivativeOfZNext = .01 if nextLayer.nodeList[l].z < 0 else 1
+                reLuOfZNext = .02 * nextLayer.nodeList[l].z if nextLayer.nodeList[l].z < 0 else nextLayer.nodeList[l].z
+                derivativeOfZNext = .02 if nextLayer.nodeList[l].z < 0 else 1
                 # for inner layer partial we need to sum effects of this partial on each of next layer's partials
                 # print(nextLayer.nodeList[l].weights)
                 # print(nextLayer.costOverActivationPartials[l])
@@ -181,7 +181,7 @@ class Layer:
             weightGradient.append(partialList)
         self.costOverActivationPartials = eL
         # print(self.costOverActivationPartials)
-        print("max input partial: ", max(self.costOverActivationPartials))
+        # print("max input partial: ", max(self.costOverActivationPartials))
         return weightGradient
 
 
@@ -217,5 +217,5 @@ class Layer:
             # j is for each node the next layer, aka weight [i][j] between the previous layer's node j and node i
             for j in range(0, len(partialMatrix[i])):
                 self.nodeList[i].weights[j] += -1 * partialMatrix[i][j]
-        print("average val of gradient ", len(self.nodeList), ": ", np.average(np.array(partialMatrix)))
+        # print("average val of gradient ", len(self.nodeList), ": ", np.average(np.array(partialMatrix)))
 
