@@ -1,8 +1,8 @@
 
-A neural network I developed in my free time just to understand the concepts.
+A neural network library I developed in my free time just to understand the concepts.
 =============================================================================
 
-It has been tested on the MNIST hand-drawn numeral dataset and has achieved notable accuracy improvements from its initial random distribution of weights.
+It has been trained and tested on the MNIST hand-drawn numeral dataset and has achieved notable accuracy improvements from its initial random distribution of weights.
 
 Roughly, it is organized as such:
 
